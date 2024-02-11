@@ -811,7 +811,9 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_GRF,      SDLK_3,             (SWAP_SHIFT | QL_3) }, // #
     { MOD_GRF,      SDLK_SLASH,         QL_POUND }, // [
     { MOD_GRF,      SDLK_PLUS,          QL_BACKSLASH }, // ]
-    { MOD_GRF,      52,                 (SWAP_CNTRL | QL_EQUAL) }, // {
+    { MOD_GRF,      255,                (SWAP_CNTRL | QL_EQUAL) }, // {
+    { MOD_NONE,     255,                QL_LBRACKET }, // ´
+    { MOD_SHIFT,    255,                QL_LBRACKET }, // ¨
     { MOD_GRF,      231,                (SWAP_CNTRL | QL_POUND) }, // }
     { MOD_NONE,     231,                (SWAP_SHIFT | QL_POUND) }, // ç
     { MOD_SHIFT,    231,                (SWAP_CNTRL | QL_H) }, // Ç
@@ -968,8 +970,17 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 	}
 
 	// Workaround for dead keys
+//	if (pressed)
+//		printf("sym: %i scan %i Mod %i\n",keysym->sym, keysym->scancode, keysym->mod);
 	if (keysym->sym == 0x40000000)
+	{
 		keysym->sym = keysym->scancode;
+		if (keysym->sym == 52)
+		{
+			keysym->sym = 255;
+//			printf("Detected: %i\n", keysym->sym);
+		}
+	}
 
     if (sdlqlmap) {
         while (sdlqlmap[i].sdl_kc != 0) {
@@ -979,6 +990,7 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
                     ((sdlqlmap[i].mod == MOD_WILD) || (mod == sdlqlmap[i].mod))) {
 
 			    int code = sdlqlmap[i].code;
+//				printf("converted: %i\n", code);
 
                 /* Code requires a change in shift state? */
                 if (SWAP_SHIFT & code) {
