@@ -813,8 +813,7 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_NONE,     231,                (SWAP_SHIFT | QL_POUND) }, // ç
     { MOD_SHIFT,    231,                (SWAP_CNTRL | QL_H) }, // Ç
     { MOD_WILD,     241,                QL_SEMICOLON }, // ñ Ñ û
-    { MOD_NONE,     SDLK_LESS,          QL_SLASH }, // <
-    { MOD_SHIFT,    SDLK_LESS,          QL_SLASH }, // >
+    { MOD_WILD,     SDLK_LESS,          QL_SLASH }, // < >
     { MOD_NONE,     SDLK_SLASH,         QL_RBRACKET }, // `
     { MOD_SHIFT,    SDLK_SLASH,         QL_RBRACKET }, // ^
     { MOD_GRF,      SDLK_1,             (SWAP_CNTRL | QL_0) }, // |
