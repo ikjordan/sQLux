@@ -95,6 +95,7 @@ struct SDLQLMap_f {
 #define MOD_SHIFT       (1 << 2)
 #define MOD_WILD        (1 << 3)
 #define MOD_GRF         (1 << 4)
+#define MOD_CSFT        (MOD_CTRL | MOD_SHIFT)
 
 static struct SDLQLMap_f *sdlqlmap = NULL;
 static void setKeyboardLayout (void);
@@ -816,6 +817,10 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_WILD,     SDLK_LESS,          QL_SLASH }, // < >
     { MOD_NONE,     SDLK_SLASH,         QL_RBRACKET }, // `
     { MOD_SHIFT,    SDLK_SLASH,         QL_RBRACKET }, // ^
+    { MOD_CSFT,     SDLK_SLASH,         QL_RBRACKET }, // down arrow
+    { MOD_CSFT,     255,                QL_LBRACKET }, // Up arrow
+    { MOD_CTRL,     231,                QL_QUOTE }, // right arrow
+    { MOD_CSFT,     231,                QL_QUOTE }, // left arrow
     { MOD_GRF,      SDLK_1,             (SWAP_CNTRL | QL_0) }, // |
     { MOD_GRF,      SDLK_2,             (SWAP_CNTRL | QL_8) }, // @
     { MOD_GRF,      SDLK_3,             (SWAP_SHIFT | QL_3) }, // #
