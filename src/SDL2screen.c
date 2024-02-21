@@ -858,6 +858,8 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_GRF,      231,                (SWAP_CNTRL | QL_POUND) }, // }
     { MOD_GRF,      255,                (SWAP_CNTRL | QL_EQUAL) }, // {
     { MOD_GRF,      186,                (SWAP_CNTRL | QL_9) }, // backslash
+    { MOD_GRF,      SDLK_z,             (SWAP_CNTRL | SWAP_SHIFT | QL_X) }, // «
+    { MOD_GRF,      SDLK_x,             (SWAP_CNTRL | SWAP_SHIFT | QL_Y) }, // »
     { 0x0, 0x0, 0x0 }
 };
 
@@ -1023,7 +1025,7 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 		if (keysym->sym == 180) keysym->sym = 255;
 	}
 
-	printf("K %i\n", keysym->sym);
+	// printf("K %i\n", keysym->sym);
 
 	// Action Spanish deadkeys not processed in MGE ROM
 	if ((keyboard == KEY_ES) && (!sdl_grfstate) && (!sdl_controlstate))
