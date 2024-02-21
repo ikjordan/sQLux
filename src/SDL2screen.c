@@ -122,6 +122,7 @@ struct SDLQLMap_f {
 #define MOD_CSFT        (MOD_CTRL | MOD_SHIFT)
 
 static struct SDLQLMap_f *sdlqlmap = NULL;
+static bool deadSwapForWindows = false;
 static void setKeyboardLayout (void);
 
 /* GIMP RGBA C-Source image dump (sQLuxLogo2.c) */
@@ -409,6 +410,11 @@ void QLSDLScreen(void)
 		}
 	} else {
 		sdl_window_mode = SDL_WINDOW_FULLSCREEN_DESKTOP;
+	}
+
+	if ((keyboard == KEY_ES) && ((strcmp(sdl_video_driver, "windows") == 0)))
+	{
+		deadSwapForWindows = true;
 	}
 
 	int shader = 0;
@@ -1008,6 +1014,13 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 		{
 			keysym->sym = 255;
 		}
+	}
+
+	// Workaround for Spanish Windows keyboard
+	if (deadSwapForWindows)
+	{
+		if (keysym->sym == SDLK_BACKQUOTE) keysym->sym = SDLK_SLASH;
+		if (keysym->sym == 180) keysym->sym = 255;
 	}
 
 	printf("K %i\n", keysym->sym);
