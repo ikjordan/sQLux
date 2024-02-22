@@ -1215,11 +1215,11 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 	i = 0;
 
 	// Merge back alt Gr and Alt
-	sdl_altstate = (sdl_altstate | sdl_grfstate) ? 1 : 0;
+	int sdl_altcomstate = (sdl_altstate | sdl_grfstate) ? 1 : 0;
 
 	while (sdlqlmap_default[i].sdl_kc != 0) {
 		if (keysym->sym == sdlqlmap_default[i].sdl_kc) {
-			int mod = sdl_altstate | sdl_controlstate << 1 |
+			int mod = sdl_altcomstate | sdl_controlstate << 1 |
 				sdl_shiftstate << 2;
 
 			int code = sdlqlmap_default[i].code;
