@@ -1214,6 +1214,9 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 	// Reset the search
 	i = 0;
 
+	// Merge back alt Gr and Alt
+	sdl_altstate = (sdl_altstate | sdl_grfstate) ? 1 : 0;
+
 	while (sdlqlmap_default[i].sdl_kc != 0) {
 		if (keysym->sym == sdlqlmap_default[i].sdl_kc) {
 			int mod = sdl_altstate | sdl_controlstate << 1 |
