@@ -122,7 +122,6 @@ struct SDLQLMap_f {
 #define MOD_CSFT        (MOD_CTRL | MOD_SHIFT)
 
 static struct SDLQLMap_f *sdlqlmap = NULL;
-static bool deadSwapForWindows = false;
 static void setKeyboardLayout (void);
 
 /* GIMP RGBA C-Source image dump (sQLuxLogo2.c) */
@@ -410,11 +409,6 @@ void QLSDLScreen(void)
 		}
 	} else {
 		sdl_window_mode = SDL_WINDOW_FULLSCREEN_DESKTOP;
-	}
-
-	if ((keyboard == KEY_ES) && ((strcmp(sdl_video_driver, "windows") == 0)))
-	{
-		deadSwapForWindows = true;
 	}
 
 	int shader = 0;
@@ -792,6 +786,14 @@ static void SDLQLKeyrowChg(int code, int press)
 	}
 }
 
+// Adjust for Windows and X11 generating different scan codes for dead keys
+#ifdef __WIN32__
+#define SDL_DEADKEY_1 SDLK_BACKQUOTE
+#else
+#define SDL_DEADKEY_1 SDLK_SLASH
+#endif
+#define SDL_DEADKEY_2 180
+
 static struct SDLQLMap_f sdlqlmap_DE[] = {
     { MOD_WILD,     SDLK_z,             QL_Y },
     { MOD_WILD,     SDLK_MINUS,         QL_SS },        /* minus */
@@ -839,13 +841,13 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_SHIFT,    SDLK_QUOTE,         QLSH_COMMA }, // ?
     { MOD_NONE,     SDLK_PLUS,          (SWAP_SHIFT | QL_EQUAL) }, // +
     { MOD_SHIFT,    SDLK_PLUS,          QL_8 }, // *
-    { MOD_NONE,     255,                QL_LBRACKET }, // ´
+    { MOD_NONE,     SDL_DEADKEY_2,      QL_LBRACKET }, // ´
     { MOD_NONE,     231,                (SWAP_SHIFT | QL_POUND) }, // ç
     { MOD_SHIFT,    231,                (SWAP_CNTRL | QL_H) }, // Ç
     { MOD_WILD,     241,                QL_SEMICOLON }, // ñ Ñ û
     { MOD_WILD,     SDLK_LESS,          QL_SLASH }, // < >
-    { MOD_NONE,     SDLK_SLASH,         QL_RBRACKET }, // `
-    { MOD_SHIFT,    SDLK_SLASH,         QLSH_RBRACKET }, // ^
+    { MOD_NONE,     SDL_DEADKEY_1,      QL_RBRACKET }, // `
+    { MOD_SHIFT,    SDL_DEADKEY_1,      QLSH_RBRACKET }, // ^
     { MOD_CTRL,     SDLK_PLUS,          (SWAP_SHIFT | QL_RBRACKET) }, // down arrow
     { MOD_CSFT,     SDLK_PLUS,          QL_LBRACKET }, // Up arrow
     { MOD_CTRL,     231,                QL_QUOTE }, // right arrow
@@ -853,10 +855,10 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_GRF,      SDLK_1,             (SWAP_CNTRL | QL_0) }, // |
     { MOD_GRF,      SDLK_2,             (SWAP_CNTRL | QL_8) }, // @
     { MOD_GRF,      SDLK_3,             (SWAP_SHIFT | QL_3) }, // #
-    { MOD_GRF,      SDLK_SLASH,         QL_POUND }, // [
+    { MOD_GRF,      SDL_DEADKEY_1,      QL_POUND }, // [
     { MOD_GRF,      SDLK_PLUS,          QL_BACKSLASH }, // ]
     { MOD_GRF,      231,                (SWAP_CNTRL | QL_POUND) }, // }
-    { MOD_GRF,      255,                (SWAP_CNTRL | QL_EQUAL) }, // {
+    { MOD_GRF,      SDL_DEADKEY_2,      (SWAP_CNTRL | QL_EQUAL) }, // {
     { MOD_GRF,      186,                (SWAP_CNTRL | QL_9) }, // backslash
     { MOD_GRF,      SDLK_z,             (SWAP_CNTRL | SWAP_SHIFT | QL_X) }, // «
     { MOD_GRF,      SDLK_x,             (SWAP_CNTRL | SWAP_SHIFT | QL_Y) }, // »
@@ -943,6 +945,7 @@ static struct SDLQLMap sdlqlmap_default[] = {
 void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 {
 	int i = 0;
+	// printf("Key %8x Scan %8x P: %i\n", keysym->sym, keysym->scancode, pressed); fflush(stdout);
 
 	/* Handle extended cursor keys */
 	/* backspace maps to control left */
@@ -1007,36 +1010,29 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 		return;
 	}
 
-	// Workaround for dead keys
+#ifndef __WIN32__
+	// Convert X11 dead keys
 	if (keysym->sym == 0x40000000)
 	{
 		keysym->sym = keysym->scancode;
-		// Workaround for spanish deadkey generating keycode for 4
+		// Avoid spanish deadkey clash with keycode for 4
 		if ((keyboard == KEY_ES) && (keysym->sym == SDLK_4))
 		{
-			keysym->sym = 255;
+			keysym->sym = SDL_DEADKEY_2;
 		}
 	}
-
-	// Workaround for Spanish Windows keyboard
-	if (deadSwapForWindows)
-	{
-		if (keysym->sym == SDLK_BACKQUOTE) keysym->sym = SDLK_SLASH;
-		if (keysym->sym == 180) keysym->sym = 255;
-	}
-
-	// printf("K %i\n", keysym->sym);
+#endif
 
 	// Action Spanish deadkeys not processed in MGE ROM
 	if ((keyboard == KEY_ES) && (!sdl_grfstate) && (!sdl_controlstate))
 	{
 		if (pressed)
 		{
-			if ((keysym->sym == SDLK_SLASH) ||
-			    ((keysym->sym == 255) && sdl_shiftstate))
+			if ((keysym->sym == SDL_DEADKEY_1) ||
+			    ((keysym->sym == SDL_DEADKEY_2) && sdl_shiftstate))
 			{
 				dkey.id = keysym->sym;
-				dkey.action = (keysym->sym == 255) ? KEY_ACTION_DIA : sdl_shiftstate ? KEY_ACTION_CIR : KEY_ACTION_GRA;
+				dkey.action = (keysym->sym == SDL_DEADKEY_2) ? KEY_ACTION_DIA : sdl_shiftstate ? KEY_ACTION_CIR : KEY_ACTION_GRA;
 				dkey.ignore = true;
 				return;
 			}
@@ -1060,10 +1056,10 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 			int replace_mod;
 
 			if ((keysym->sym == SDLK_a) ||
-				(keysym->sym == SDLK_e) ||
-				(keysym->sym == SDLK_i) ||
-				(keysym->sym == SDLK_o) ||
-				(keysym->sym == SDLK_u))
+			    (keysym->sym == SDLK_e) ||
+			    (keysym->sym == SDLK_i) ||
+			    (keysym->sym == SDLK_o) ||
+			    (keysym->sym == SDLK_u))
 			{
 				// determine what key combination to send
 				if (dkey.action == KEY_ACTION_CIR)
@@ -1183,9 +1179,15 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 	else
 	{
 		if (sdlqlmap) {
+#ifdef __WIN32__
+			// Windows always sets the control key when alt Gr is pressed
+			int mod = sdl_altstate | ((sdl_controlstate && (!sdl_grfstate)) ? 2 : 0) |
+				sdl_shiftstate << 2 | sdl_grfstate << 4;
+#else
+			int mod = sdl_altstate | (sdl_controlstate << 1) |
+				sdl_shiftstate << 2 | sdl_grfstate << 4;
+#endif
 			while (sdlqlmap[i].sdl_kc != 0) {
-				int mod = sdl_altstate | sdl_controlstate << 1 |
-					sdl_shiftstate << 2 | sdl_grfstate << 4;
 				if ((keysym->sym == sdlqlmap[i].sdl_kc) &&
 						((sdlqlmap[i].mod == MOD_WILD) || (mod == sdlqlmap[i].mod))) {
 
