@@ -838,12 +838,11 @@ static struct SDLQLMap_f sdlqlmap_ES[] = {
     { MOD_NONE,     SDLK_PLUS,          (SWAP_SHIFT | QL_EQUAL) }, // +
     { MOD_SHIFT,    SDLK_PLUS,          QL_8 }, // *
     { MOD_NONE,     SDL_DEADKEY_2,      QL_LBRACKET }, // ´
+    { MOD_NONE,     SDL_DEADKEY_1,      QL_RBRACKET }, // `
     { MOD_NONE,     231,                (SWAP_SHIFT | QL_POUND) }, // ç
     { MOD_SHIFT,    231,                (SWAP_CNTRL | QL_H) }, // Ç
     { MOD_WILD,     241,                QL_SEMICOLON }, // ñ Ñ û
     { MOD_WILD,     SDLK_LESS,          QL_SLASH }, // < >
-    { MOD_NONE,     SDL_DEADKEY_1,      QL_RBRACKET }, // `
-    { MOD_SHIFT,    SDL_DEADKEY_1,      QLSH_RBRACKET }, // ^
     { MOD_CTRL,     SDLK_PLUS,          (SWAP_SHIFT | QL_RBRACKET) }, // down arrow
     { MOD_CSFT,     SDLK_PLUS,          QL_LBRACKET }, // Up arrow
     { MOD_CTRL,     231,                QL_QUOTE }, // right arrow
@@ -1023,11 +1022,11 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 	{
 		if (pressed)
 		{
-			if ((keysym->sym == SDL_DEADKEY_1) ||
+			if (((keysym->sym == SDL_DEADKEY_1) && sdl_shiftstate) ||
 			    ((keysym->sym == SDL_DEADKEY_2) && sdl_shiftstate))
 			{
 				dkey.id = keysym->sym;
-				dkey.action = (keysym->sym == SDL_DEADKEY_2) ? KEY_ACTION_DIA : sdl_shiftstate ? KEY_ACTION_CIR : KEY_ACTION_GRA;
+				dkey.action = (keysym->sym == SDL_DEADKEY_2) ? KEY_ACTION_DIA : KEY_ACTION_CIR;
 				dkey.ignore = true;
 				return;
 			}
@@ -1103,28 +1102,6 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 						case SDLK_u:
 							replace_mod = 0x04;
 							dkey.replace_code = QL_BACKSLASH;
-						break;
-					}
-				}
-				else // Grave
-				{
-					replace_mod = 0x06;
-					switch (keysym->sym)
-					{
-						case SDLK_a:
-							dkey.replace_code = QL_9;
-						break;
-						case SDLK_e:
-							dkey.replace_code = QL_Q;
-						break;
-						case SDLK_i:
-							dkey.replace_code = QL_O;
-						break;
-						case SDLK_o:
-							dkey.replace_code = QL_I;
-						break;
-						case SDLK_u:
-							dkey.replace_code = QL_COMMA;
 						break;
 					}
 				}
