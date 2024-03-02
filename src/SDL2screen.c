@@ -1226,7 +1226,7 @@ static void setKeyboardLayout (void)
 		sdlqlmap = sdlqlmap_ES;
 		keyboard = KEY_ES;
 		usegrfstate = 1;
-		if (V1) printf("Using ES keymap.\n");
+		if (V1) printf("Using ES keymap updated.\n");
 	} else {
 		if (V1) printf("Using default keymap. (use KBD=<countrycode> in sqlux.ini to change)\n");
 		sdlqlmap = NULL;
