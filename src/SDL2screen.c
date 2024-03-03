@@ -54,7 +54,6 @@ typedef enum {
     KEY_ACTION_NONE,
     KEY_ACTION_DIA,
     KEY_ACTION_CIR,
-    KEY_ACTION_GRA,
 } KeyboardAction;
 
 typedef struct DeadKey {
@@ -1123,11 +1122,6 @@ void QLSDProcessKey(SDL_Keysym *keysym, int pressed)
 					dkey.replace_code = QL_LBRACKET;
 					replace_mod = 0x04;
 				}
-				else
-				{
-					dkey.replace_code = QL_RBRACKET; // `
-					replace_mod = 0x2;
-				}
 			}
 
 			// Clear the deadkey
@@ -1226,7 +1220,7 @@ static void setKeyboardLayout (void)
 		sdlqlmap = sdlqlmap_ES;
 		keyboard = KEY_ES;
 		usegrfstate = 1;
-		if (V1) printf("Using ES keymap updated.\n");
+		if (V1) printf("Using ES keymap.\n");
 	} else {
 		if (V1) printf("Using default keymap. (use KBD=<countrycode> in sqlux.ini to change)\n");
 		sdlqlmap = NULL;
